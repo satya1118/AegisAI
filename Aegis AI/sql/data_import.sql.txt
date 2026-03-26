@@ -1,8 +1,0 @@
-TRUNCATE TABLE vendors;
-
-COPY vendors
-FROM 'C:/Users/gnaid/Desktop/vendors.csv'
-DELIMITER ','
-CSV HEADER;
-
-SELECT COUNT(*) FROM vendors;
