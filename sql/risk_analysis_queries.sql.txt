@@ -1,0 +1,40 @@
+-- Total vendors
+SELECT COUNT(*) AS total_vendors
+FROM vendors;
+
+-- Vendor risk distribution
+SELECT risk_tier,
+       COUNT(*) AS vendor_count,
+       ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS percentage
+FROM vendors
+GROUP BY risk_tier
+ORDER BY vendor_count DESC;
+
+-- Revenue exposure analysis
+SELECT 
+    SUM(contract_value) AS total_revenue,
+    SUM(CASE WHEN risk_tier = 'High' THEN contract_value ELSE 0 END) AS revenue_at_risk,
+    ROUND(
+        100.0 * SUM(CASE WHEN risk_tier = 'High' THEN contract_value ELSE 0 END)
+        / SUM(contract_value),
+        2
+    ) AS pct_revenue_at_risk
+FROM vendors;
+
+-- SLA performance by vendor category
+SELECT category,
+       ROUND(AVG(sla_breaches_90d), 2) AS avg_sla_breaches
+FROM vendors
+GROUP BY category
+ORDER BY avg_sla_breaches DESC;
+
+-- High-risk vendor watchlist
+SELECT vendor_id,
+       vendor_name,
+       contract_value,
+       sla_breaches_90d,
+       compliance_flag
+FROM vendors
+WHERE risk_tier = 'High'
+AND contract_value > 1000000
+ORDER BY contract_value DESC;
